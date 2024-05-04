@@ -31,8 +31,8 @@ h23_ip = '10.0.2.100'
 h24_ip = '10.0.2.120'
 h25_ip = '10.0.2.140'
 
-h31_ip = '10.0.2.40'
-h32_ip = '10.0.2.41'
+h31_ip = '10.0.3.40'
+h32_ip = '10.0.3.41'
 h33_ip = '10.0.3.120'
 h34_ip = '10.0.3.140'
 
@@ -146,17 +146,17 @@ def TrdpTopo():
 	
     info( '*** Adding switches\n' )
 	# =>add the switch here
-    s1 = net.addSwitch('s1')
-    s2 = net.addSwitch('s2')
-    s3 = net.addSwitch('s3')
-    s4 = net.addSwitch('s4')
+    s1 = net.addSwitch('s1', stp = True, failMode = 'standalone')
+    s2 = net.addSwitch('s2', stp = True, failMode = 'standalone')
+    s3 = net.addSwitch('s3', stp = True, failMode = 'standalone')
+    s4 = net.addSwitch('s4', stp = True, failMode = 'standalone')
 	
     info( '*** Creating links\n' )
 	# =>create the links here. You don't need to have a TCLink with bandwidth limitation for this second part
-    net.addLink(h11, s1, port1=1, port2=1)
-    net.addLink(h12, s1, port1=1, port2=2)
-    net.addLink(h13, s1, port1=1, port2=3)
-    net.addLink(h14, s1, port1=1, port2=4)
+    net.addLink(h11, s1, port1=1, port2=1, intfName2='s1-h11')
+    net.addLink(h12, s1, port1=1, port2=2, intfName2='s1-h12')
+    net.addLink(h13, s1, port1=1, port2=3, intfName2='s1-h13')
+    net.addLink(h14, s1, port1=1, port2=4, intfName2='s1-h14')
     net.addLink(h15, s1, port1=1, port2=5)
     net.addLink(h16, s1, port1=1, port2=6)
     net.addLink(h17, s1, port1=1, port2=7)
@@ -218,21 +218,27 @@ def TrdpTopo():
     #        -- --id=@q2 create Queue other-config:min-rate=20000000: other-config:max-rate=500000000')
     
 
-# Don't modify the code below, these will test your controller
+    # set switches stp enable
+    # s1.cmd('ovs-vsctl set bridge s1 stp-enable=true')
+    # s2.cmd('ovs-vsctl set bridge s2 stp-enable=true')
+    # s3.cmd('ovs-vsctl set bridge s3 stp-enable=true')
+    # s4.cmd('ovs-vsctl set bridge s4 stp-enable=true')
 
-    h11.cmd('iperf -s &')
-    time.sleep(1)
+    
 
-    info( '\n\n\n\n*** Testing PIR from H1 to H3\n')
-    print(h12.cmd('iperf -c %s' % h11.IP()))
-    time.sleep(1)
+    # h11.cmd('iperf -s &')
+    # time.sleep(1)
 
-    info( '\n\n\n\n*** Testing CIR to H2 to H3\n')
-    print(h13.cmd('iperf -c %s' % h11.IP()))
-    time.sleep(1)
+    # info( '\n\n\n\n*** Testing PIR from H1 to H3\n')
+    # print(h12.cmd('iperf -c %s' % h11.IP()))
+    # time.sleep(1)
+
+    # info( '\n\n\n\n*** Testing CIR to H2 to H3\n')
+    # print(h13.cmd('iperf -c %s' % h11.IP()))
+    # time.sleep(1)
     
     # send the python script to the broadcast ip
-    # os.system('sudo mnexec -a %s python /home/lic9/prj/TRDP_SDN/002SDNproject/pox/pox/misc/lab/SDN/app.py %s %s &' % (h11.name, bc11, 30))
+    # os.system('sudo mnexec -a %s python /home/lic9/prj/TRDP_SDN/002SDNproject/pox/pox/misc/lab/SDN/app.py %s %s &' % (nodeName, bc11, 30))
     # os.system('sudo mnexec -a %s python /home/lic9/prj/TRDP_SDN/002SDNproject/pox/pox/misc/lab/SDN/app.py %s %s &' % (h12.name, bc12, 30))
     # os.system('sudo mnexec -a %s python /home/lic9/prj/TRDP_SDN/002SDNproject/pox/pox/misc/lab/SDN/app.py %s %s &' % (h13.name, bc13, 30))
     # os.system('sudo mnexec -a %s python /home/lic9/prj/TRDP_SDN/002SDNproject/pox/pox/misc/lab/SDN/app.py %s %s &' % (h14.name, bc14, 30))
@@ -259,10 +265,117 @@ def TrdpTopo():
     # os.system('sudo mnexec -a %s python /home/lic9/prj/TRDP_SDN/002SDNproject/pox/pox/misc/lab/SDN/app.py %s %s &' % (h44.name, bc44, 30))
     # os.system('sudo mnexec -a %s python /home/lic9/prj/TRDP_SDN/002SDNproject/pox/pox/misc/lab/SDN/app.py %s %s &' % (h45.name, bc45, 100))
     
+    # use mininet to pingall to ensure the network is working
+    net.pingAll()
+
+
+    # use smcroute to set multicast of h11 in s1 to send to the multicast to bc11
+    # h11.cmd('smcroute -d')
+    # h11.cmd('smcroute -a eth0 %s' % bc11)
+
+
+    # use the script to send the specific message to the specific ip
+    # h11.cmd('python /home/lic9/prj/TRDP_SDN/002SDNproject/halosaur/pox/pox/misc/lab/SDN2/client.py -i %s -m %s' % (bc11, 'Hello, this is h11'))
+    # h11.cmd('python /home/lic9/prj/TRDP_SDN/002SDNproject/halosaur/pox/pox/misc/lab/SDN2/client.py -i %s -m %s' % (bc11, 'Hello, this is h11'))
+    # h11.cmd('python /home/lic9/prj/TRDP_SDN/002SDNproject/halosaur/pox/pox/misc/lab/SDN2/client.py -i %s -m %s' % (bc11, 'Hello, this is h11'))
+    print(s1.cmd('smcroutectl show interfaces'))
+
+    # try to enable s1 use smcroute to send the multicast
+    # print(s1.cmd( 'sysctl net.ipv4.ip_forward=1'))
+    # print(s1.cmd( 'sysctl net.ipv4.icmp_echo_ignore_broadcasts=0' ))
+    # enable igmp version 2 for multicast
+    # print(s1.cmd( 'sysctl net.ipv4.conf.s1-h11.force_igmp_version=2' ))
+    # print(s1.cmd( 'sysctl net.ipv4.conf.s1-h12.force_igmp_version=2' ))
+    # print(s1.cmd( 'sysctl net.ipv4.conf.s1-h13.force_igmp_version=2' ))
+    # # start the smcroute
+    # print(s1.cmd( 'smcrouted -l debug -I smcroute-s1-v1' ))
+    # print(s1.cmd( 'sleep 3'))
+    # # add the multicast route
+    # print(s1.cmd( 'smcroutectl -I smcroute-s1-v1 '
+    #         'add s1-h11 239.255.2.0 s1-h12 s1-h13' ))
+    # print(s1.cmd( 'smcroutectl -I smcroute-s1-v1 '
+    #         'add s1-h12 239.255.2.1 s1-h11 s1-h13' ))
+    # print(s1.cmd( 'smcroutectl -I smcroute-s1-v1 '
+    #         'add s1-h13 239.255.4.1 s1-h11 s1-h12' ))
+
+    # try to make the h11 join the multicast group
+
+    # intfName = 'h11-eth1'
+    # nodeName = 'h11'
+    # print(h11.cmd( 'sysctl net.ipv4.ip_forward=1'))
+    # print(h11.cmd('sysctl net.ipv4.icmp_echo_ignore_broadcasts=0'))
+    # print(h11.cmd('route add -net 224.0.0.0 netmask 240.0.0.0 dev ' + intfName))
+
+
+    # intfName = 'h21-eth1'
+    # nodeName = 'h21'
+    # print(h21.cmd( 'sysctl net.ipv4.ip_forward=1'))
+    # print(h21.cmd('sysctl net.ipv4.icmp_echo_ignore_broadcasts=0'))
+    # print(h21.cmd('route add -net 224.0.0.0 netmask 240.0.0.0 dev ' + intfName))
+
+    intfNameGroup = [ 'h11-eth1', 'h12-eth1', 'h13-eth1', 'h14-eth1',
+                      'h15-eth1', 'h16-eth1', 'h17-eth1', 'h18-eth1',
+                      'h19-eth1', 'h21-eth1', 'h22-eth1', 'h23-eth1',
+                      'h24-eth1', 'h25-eth1', 'h31-eth1', 'h32-eth1',
+                      'h33-eth1', 'h34-eth1', 'h41-eth1', 'h42-eth1',
+                      'h43-eth1', 'h44-eth1', 'h45-eth1']
+    nodeNameGroup = [ 'h11', 'h12', 'h13', 'h14', 'h15', 'h16', 'h17', 'h18', 'h19',
+                        'h21', 'h22', 'h23', 'h24', 'h25', 'h31', 'h32', 'h33', 'h34',
+                        'h41', 'h42', 'h43', 'h44', 'h45']
     
+    for i in range(len(intfNameGroup)):
+        intfName = intfNameGroup[i]
+        nodeName = nodeNameGroup[i]
+        print(net.get(nodeName).cmd( 'sysctl net.ipv4.ip_forward=1'))
+        print(net.get(nodeName).cmd('sysctl net.ipv4.icmp_echo_ignore_broadcasts=0'))
+        print(net.get(nodeName).cmd('route add -net 224.0.0.0 netmask 240.0.0.0 dev ' + intfName))
+
+    udp_msg_list = [{'ComID': 1200, 'MulticastIP': bc11, 'DataLength': 1482,'Period': 30},
+                    {'ComID': 1201, 'MulticastIP': bc12, 'DataLength': 1482,'Period': 30},
+                    {'ComID': 1301, 'MulticastIP': bc13, 'DataLength': 282, 'Period': 30},
+                    {'ComID': 1302, 'MulticastIP': bc14, 'DataLength': 282, 'Period': 30},
+                    {'ComID': 1401, 'MulticastIP': bc15, 'DataLength': 182, 'Period': 30},
+                    {'ComID': 1501, 'MulticastIP': bc16, 'DataLength': 182, 'Period': 100},
+                    {'ComID': 1601, 'MulticastIP': bc17, 'DataLength': 282, 'Period': 200},
+                    {'ComID': 1701, 'MulticastIP': bc18, 'DataLength': 582, 'Period': 50},
+                    {'ComID': 1702, 'MulticastIP': bc19, 'DataLength': 582, 'Period': 50},
+
+                    {'ComID': 2301, 'MulticastIP': bc21, 'DataLength': 282,'Period': 30},
+                    {'ComID': 2302, 'MulticastIP': bc22, 'DataLength': 282,'Period': 30},
+                    {'ComID': 2801, 'MulticastIP': bc23, 'DataLength': 594, 'Period': 30},
+                    {'ComID': 2401, 'MulticastIP': bc24, 'DataLength': 182, 'Period': 30},
+                    {'ComID': 2501, 'MulticastIP': bc25, 'DataLength': 182, 'Period': 100},
+
+                    {'ComID': 3301, 'MulticastIP': bc31, 'DataLength': 282, 'Period': 30},
+                    {'ComID': 3302, 'MulticastIP': bc32, 'DataLength': 282, 'Period': 30},
+                    {'ComID': 3401, 'MulticastIP': bc33, 'DataLength': 182, 'Period': 30},
+                    {'ComID': 3501, 'MulticastIP': bc34, 'DataLength': 182, 'Period': 100},
+
+                    {'ComID': 4301, 'MulticastIP': bc41, 'DataLength': 282, 'Period': 30},
+                    {'ComID': 4302, 'MulticastIP': bc42, 'DataLength': 282, 'Period': 30},
+                    {'ComID': 4801, 'MulticastIP': bc43, 'DataLength': 594, 'Period': 30},
+                    {'ComID': 4401, 'MulticastIP': bc44, 'DataLength': 182, 'Period': 30},
+                    {'ComID': 4501, 'MulticastIP': bc45, 'DataLength': 182, 'Period': 100}]
+
+    for i in range(len(udp_msg_list)):
+        udp_msg = udp_msg_list[i]
+        nodeName = nodeNameGroup[i]
+        print(net.get(nodeName).cmd('python3 client_trdp.py \
+                                    -b %s -p %s -m %s -t %s -l %s -c %s -d %s -a %s &' % \
+                                    (udp_msg['MulticastIP'], \
+                                    6000, \
+                                    'TRDP_Packet_Test', \
+                                    udp_msg['Period'], \
+                                    1, \
+                                    udp_msg['ComID'], \
+                                    udp_msg['DataLength'], \
+                                    0)))
+        # udp_msg['DataLength'], \
+
+    # onshot test
+    # h11.cmd('python3 client_one_shot.py -i %s -p %s -m %s -t %s &' % (bc11, 6000, 'Hello, this is h11', 30))
     CLI( net )
-    # os.system('sudo ovs-vsctl clear Port s1-eth3 qos')
-    # os.system('sudo ovs-vsctl clear Port s1-eth4 qos')
+
 
     os.system('sudo ovs-vsctl --all destroy qos')
     os.system('sudo ovs-vsctl --all destroy queue')

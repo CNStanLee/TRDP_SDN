@@ -12,12 +12,12 @@
 
 ### Run the Controller
 ```sh
-cd ~/prj/TRDP_SDN/002SDNproject/halosaur/pox
+cd ~/projects/TrdpSdn/TRDP_SDN/002SDNproject/halosaur/pox
 ./pox.py log.level --DEBUG misc.lab.SDN2.controller_trdp
 ```
 ### Run the Mininet Topo
 ```sh
-cd ~/prj/TRDP_SDN/002SDNproject/halosaur/pox/pox/misc/lab/SDN2/
+cd ~/projects/TrdpSdn/TRDP_SDN/002SDNproject/halosaur/pox/pox/misc/lab/SDN2/
 sudo python3 topo_trdp.py
 ```
 ### Kill the thread if controller is not closed correctly
@@ -25,3 +25,7 @@ sudo python3 topo_trdp.py
 ps -aux | grep pox
 kill 1234
 ```
+
+sudo smcroutectl show interfaces
+sudo smcroutectl show interfaces
+sudo systemctl restart smcroute

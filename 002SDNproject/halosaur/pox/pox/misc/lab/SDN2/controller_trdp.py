@@ -35,8 +35,8 @@ h23_ip = '10.0.2.100'
 h24_ip = '10.0.2.120'
 h25_ip = '10.0.2.140'
 
-h31_ip = '10.0.2.40'
-h32_ip = '10.0.2.41'
+h31_ip = '10.0.3.40'
+h32_ip = '10.0.3.41'
 h33_ip = '10.0.3.120'
 h34_ip = '10.0.3.140'
 
@@ -287,7 +287,11 @@ def _handle_PacketIn ( event): # Ths is the main class where your code goes, it 
     # broadcast the ARP message
     if dst_port is None and eth_packet.type == eth.ARP_TYPE and eth_packet.dst == EthAddr(b"\xff\xff\xff\xff\xff\xff"):
         msg = of.ofp_packet_out(data=event.ofp)
-        msg.actions.append(of.ofp_action_output(port=of.OFPP_ALL))
+        # broadcast the message except the source port
+        for port in range(1, 16):
+            if port != inport:
+                msg.actions.append(of.ofp_action_output(port=port))
+        # msg.actions.append(of.ofp_action_output(port=of.OFPP_ALL))
         event.connection.send(msg)
     else:
         # just forward message, make it possible to ping each other
