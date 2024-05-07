@@ -58,7 +58,7 @@ etb_topo_count = 0
 # para is not enabled N/A
 op_trn_topo_count = 0
 # input parameters
-dataset_length = options.dataset_length
+dataset_length = options.dataset_length - 82  # offset 82 bytes
 # reserved para
 reserved = 0
 reply_com_id = 0
