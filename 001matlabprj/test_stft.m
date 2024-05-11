@@ -14,7 +14,9 @@ length_of_pack = length(decodedPackets);
 time_stamp_series = [];
 for i = 1 : length_of_pack
     timestamp_value = decodedPackets(i).Timestamp;
-    time_stamp_series = [time_stamp_series, timestamp_value];
+    if decodedPackets(i).Packet.eth.Payload(10) == 17
+        time_stamp_series = [time_stamp_series, timestamp_value];
+    end
 end
 
 
