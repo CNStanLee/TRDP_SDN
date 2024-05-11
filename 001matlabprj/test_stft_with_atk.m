@@ -17,7 +17,6 @@ for i = 1 : length_of_pack
     time_stamp_series = [time_stamp_series, timestamp_value];
 end
 
-
 % normalize the time
 % delete the offset and rerange time to 0-10000
 min_time_stamp = min(time_stamp_series);
@@ -26,6 +25,15 @@ time_stamp_series_norm = time_stamp_series - min_time_stamp;
 max_time_norm = max(time_stamp_series_norm);
 %time_stamp_series_mapped = (time_stamp_series_norm / max_time_norm) * 9999 + 1;
 time_stamp_series_mapped = time_stamp_series_norm/1e6;
+
+
+% add some attack time array
+
+random_factor = 0.05;
+jitter = (rand(10000,1) - 0.5) * random_factor;
+for i = 1 : 10000
+    time_stamp_series_mapped(i + 10000) = time_stamp_series_mapped(i + 10000) + jitter(i);
+end
 
 % total time(s)
 total_sample_time = (max_time_stamp - min_time_stamp)/1e6;
