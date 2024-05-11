@@ -109,6 +109,8 @@ s.sendto(msg, (options.ip, options.port) )
 # random factor for the delay time, 10% of the delay time
 random_factor = 0.1
 
+# set a time counter to record the time that the script has run
+
 # if the message is loop, then keep sending the message
 while options.loop == 1:
     # add some random factor to the delay_time
