@@ -15,7 +15,7 @@
 # -a data_tag
 
 import socket, optparse, time, struct
-from scapy.all import APR, Ether, srp, sendp
+#from scapy.all import APR, Ether, srp, sendp
 # time interval define
 delay_ms = 1000
 delay_s = 1

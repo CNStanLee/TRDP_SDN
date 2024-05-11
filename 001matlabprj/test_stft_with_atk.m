@@ -14,8 +14,20 @@ length_of_pack = length(decodedPackets);
 time_stamp_series = [];
 for i = 1 : length_of_pack
     timestamp_value = decodedPackets(i).Timestamp;
-    time_stamp_series = [time_stamp_series, timestamp_value];
+    if decodedPackets(i).Packet.eth.Payload(10) == 17 ...
+            && decodedPackets(i).Packet.eth.Payload(13) == 10 ...
+            && decodedPackets(i).Packet.eth.Payload(14) == 0 ...
+            && decodedPackets(i).Packet.eth.Payload(15) == 1 ...
+            && decodedPackets(i).Packet.eth.Payload(16) == 30 
+        time_stamp_series = [time_stamp_series, timestamp_value];
+    end
 end
+
+% for i = 1 : length_of_pack
+%     timestamp_value = decodedPackets(i).Timestamp;
+%     time_stamp_series = [time_stamp_series, timestamp_value];
+% end
+
 
 % normalize the time
 % delete the offset and rerange time to 0-10000
@@ -29,10 +41,16 @@ time_stamp_series_mapped = time_stamp_series_norm/1e6;
 
 % add some attack time array
 
+% random_factor = 0.05;
+% jitter = (rand(10000,1) - 0.5) * random_factor;
+% for i = 1 : 10000
+%     time_stamp_series_mapped(i + 10000) = time_stamp_series_mapped(i + 10000) + jitter(i);
+% end
+
 random_factor = 0.05;
-jitter = (rand(10000,1) - 0.5) * random_factor;
-for i = 1 : 10000
-    time_stamp_series_mapped(i + 10000) = time_stamp_series_mapped(i + 10000) + jitter(i);
+jitter = (rand(300,1) - 0.5) * random_factor;
+for i = 1 : 300
+    time_stamp_series_mapped(i + 300) = time_stamp_series_mapped(i + 300) + jitter(i);
 end
 
 % total time(s)

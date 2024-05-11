@@ -14,10 +14,19 @@ length_of_pack = length(decodedPackets);
 time_stamp_series = [];
 for i = 1 : length_of_pack
     timestamp_value = decodedPackets(i).Timestamp;
-    if decodedPackets(i).Packet.eth.Payload(10) == 17
+    if decodedPackets(i).Packet.eth.Payload(10) == 17 ...
+            && decodedPackets(i).Packet.eth.Payload(13) == 10 ...
+            && decodedPackets(i).Packet.eth.Payload(14) == 0 ...
+            && decodedPackets(i).Packet.eth.Payload(15) == 1 ...
+            && decodedPackets(i).Packet.eth.Payload(16) == 30 
         time_stamp_series = [time_stamp_series, timestamp_value];
     end
 end
+
+% for i = 1 : length_of_pack
+%     timestamp_value = decodedPackets(i).Timestamp;
+%     time_stamp_series = [time_stamp_series, timestamp_value];
+% end
 
 
 % normalize the time
@@ -87,7 +96,7 @@ ylabel('|X(f)|')    % label for y
 desired_window_duration = 2;
 window_length = 2^nextpow2(round(desired_window_duration * fs));
 overlap = round(window_length / 2);
-nfft = window_length;
+nfft = window_length * 8;
 
 [S, F, T] = spectrogram(filtered, window_length, overlap, nfft, fs);
 figure;
