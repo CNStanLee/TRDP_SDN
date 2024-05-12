@@ -5,23 +5,50 @@ clc;
 close all;
 
 % get the data from the wireshark
-pcapFile = 'sim2.pcap';
+% sim2 is a normal data
+
+% sim7 is the data that use strategy 1
+% attack ip 10.0.3.120
+% data type: not struct
+
+% sim8 is the data that use strategy 3
+% attack ip 10.0.2.160
+% data type: not struct
+
+pcapFile = 'sim8.pcap';
 pcapReaderObj  = pcapReader(pcapFile);
 decodedPackets = readAll(pcapReaderObj);
 length_of_pack = length(decodedPackets);
 
 % get the timestamp features from the packet
 time_stamp_series = [];
-for i = 1 : length_of_pack
-    timestamp_value = decodedPackets(i).Timestamp;
-    if decodedPackets(i).Packet.eth.Payload(10) == 17 ...
-            && decodedPackets(i).Packet.eth.Payload(13) == 10 ...
-            && decodedPackets(i).Packet.eth.Payload(14) == 0 ...
-            && decodedPackets(i).Packet.eth.Payload(15) == 1 ...
-            && decodedPackets(i).Packet.eth.Payload(16) == 30 
-        time_stamp_series = [time_stamp_series, timestamp_value];
+
+% check the structure fo the data packet
+if isstruct(decodedPackets(1).Packet)
+% is struct
+    for i = 1 : length_of_pack
+        timestamp_value = decodedPackets(i).Timestamp;
+        if decodedPackets(i).Packet.eth.Payload(10) == 17 ...
+                && decodedPackets(i).Packet.eth.Payload(13) == 10 ...
+                && decodedPackets(i).Packet.eth.Payload(14) == 0 ...
+                && decodedPackets(i).Packet.eth.Payload(15) == 1 ...
+                && decodedPackets(i).Packet.eth.Payload(16) == 30 
+            time_stamp_series = [time_stamp_series, timestamp_value];
+        end
+    end
+else
+    for i = 1 : length_of_pack
+        timestamp_value = decodedPackets(i).Timestamp;
+        if decodedPackets(i).Packet(26) == 17 ...
+                && decodedPackets(i).Packet(29) == 10 ...
+                && decodedPackets(i).Packet(30) == 0 ...
+                && decodedPackets(i).Packet(31) == 2 ...
+                && decodedPackets(i).Packet(32) == 160 
+            time_stamp_series = [time_stamp_series, timestamp_value];
+        end
     end
 end
+
 
 % for i = 1 : length_of_pack
 %     timestamp_value = decodedPackets(i).Timestamp;

@@ -107,7 +107,7 @@ s.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 3)
 s.sendto(msg, (options.ip, options.port) )
 
 # random factor for the delay time, 10% of the delay time
-random_factor = 0.1
+random_factor = 0.01
 
 # if the message is loop, then keep sending the message
 while options.loop == 1:

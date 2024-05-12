@@ -2,11 +2,20 @@
 Author: Changhongli lic9@tcd.com
 Date: 2024-04-08 18:13:46
 LastEditors: Changhongli lic9@tcd.com
-LastEditTime: 2024-04-28 22:23:02
-FilePath: /002SDNproject/halosaur/pox/pox/misc/lab/SDN2/topo_trdp.py
+LastEditTime: 2024-05-12 20:44:40
+FilePath: /TRDP_SDN/002SDNproject/halosaur/pox/pox/misc/lab/SDN2/topo_trdp.py
 Description: 
 
 '''
+# wireshark filter setting
+# udp.port == 6000 && ! openflow_v1 && ip.addr == 10.0.2.160
+
+
+# s3 real-time rate
+# 415792 bytes
+# 416208 bytes
+# rate = 416208 - 415792 = 416 bytes / 1 sec = 3328 bits / 1 sec = 2.6 Mbps
+
 from mininet.net import Mininet
 from mininet.node import RemoteController
 from mininet.cli import CLI
@@ -30,11 +39,15 @@ h22_ip = '10.0.2.41'
 h23_ip = '10.0.2.100'
 h24_ip = '10.0.2.120'
 h25_ip = '10.0.2.140'
+# car2 extra attack node
+h26_ip = '10.0.2.160'
 
 h31_ip = '10.0.3.40'
 h32_ip = '10.0.3.41'
 h33_ip = '10.0.3.120'
 h34_ip = '10.0.3.140'
+# car3 extra attack node
+h35_ip = '10.0.3.160'
 
 h41_ip = '10.0.4.40'
 h42_ip = '10.0.4.41'
@@ -58,11 +71,15 @@ h22_mac = '00:00:00:00:02:41'
 h23_mac = '00:00:00:00:02:100'
 h24_mac = '00:00:00:00:02:120'
 h25_mac = '00:00:00:00:02:140'
+# car2 extra attack node
+h26_mac = '00:00:00:00:02:160'
 
 h31_mac = '00:00:00:00:03:40'
 h32_mac = '00:00:00:00:03:41'
 h33_mac = '00:00:00:00:03:120'
 h34_mac = '00:00:00:00:03:140'
+# car3 extra attack node
+h35_mac = '00:00:00:00:03:160'
 
 h41_mac = '00:00:00:00:04:40'
 h42_mac = '00:00:00:00:04:41'
@@ -104,6 +121,17 @@ bc45 = '239.255.19.1'
 def TrdpTopo():
     net = Mininet( controller=RemoteController)
 
+    os.system('sudo sysctl net.ipv4.ip_forward=1')
+    os.system('sudo sysctl net.ipv4.icmp_echo_ignore_broadcasts=0')
+    os.system('sudo sysctl net.ipv4.conf.all.accept_redirects=1')
+    os.system('sudo sysctl net.ipv4.conf.all.send_redirects=1')
+    
+    # critical for the multicast
+    # this will disable the rp_filter!!!!
+    # also try to disable the rp_filter in the host
+    os.system('sudo sysctl -w net.ipv4.conf.all.rp_filter=0')
+
+
 	# For this part you can reuse the exact same code of the first assignment. Notice that for the links you don't need to have a TCLink with bandwidth limitation for this second part
     info( '*** Adding controller\n' )
 	# =>add the controller here
@@ -129,12 +157,16 @@ def TrdpTopo():
     h23 = net.addHost('h23', ip=h23_ip, mac=h23_mac)
     h24 = net.addHost('h24', ip=h24_ip, mac=h24_mac)
     h25 = net.addHost('h25', ip=h25_ip, mac=h25_mac)
+    # car two extra attack node
+    h26 = net.addHost('h26', ip=h26_ip, mac=h26_mac)
     
     # car three node
     h31 = net.addHost('h31', ip=h31_ip, mac=h31_mac)
     h32 = net.addHost('h32', ip=h32_ip, mac=h32_mac)
     h33 = net.addHost('h33', ip=h33_ip, mac=h33_mac)
     h34 = net.addHost('h34', ip=h34_ip, mac=h34_mac)
+    # car three extra attack node
+    h35 = net.addHost('h35', ip=h35_ip, mac=h35_mac)
     
     # car four node
     h41 = net.addHost('h41', ip=h41_ip, mac=h41_mac)
@@ -168,11 +200,15 @@ def TrdpTopo():
     net.addLink(h23, s2, port1=1, port2=3)
     net.addLink(h24, s2, port1=1, port2=4)
     net.addLink(h25, s2, port1=1, port2=5)
+    # car two extra attack node
+    net.addLink(h26, s2, port1=1, port2=6)
     
     net.addLink(h31, s3, port1=1, port2=1)
     net.addLink(h32, s3, port1=1, port2=2)
     net.addLink(h33, s3, port1=1, port2=3)
     net.addLink(h34, s3, port1=1, port2=4)
+    # car three extra attack node
+    net.addLink(h35, s3, port1=1, port2=5)
     
     net.addLink(h41, s4, port1=1, port2=1)
     net.addLink(h42, s4, port1=1, port2=2)
@@ -197,9 +233,9 @@ def TrdpTopo():
     info( '*** Starting network\n')
     net.start()
     h11, h12, h13, h14, h15, h16, h17, h18, h19 = net.hosts[0], net.hosts[1], net.hosts[2], net.hosts[3], net.hosts[4], net.hosts[5], net.hosts[6], net.hosts[7], net.hosts[8]
-    h21, h22, h23, h24, h25 = net.hosts[9], net.hosts[10], net.hosts[11], net.hosts[12], net.hosts[13]
-    h31, h32, h33, h34 = net.hosts[14], net.hosts[15], net.hosts[16], net.hosts[17]
-    h41, h42, h43, h44, h45 = net.hosts[18], net.hosts[19], net.hosts[20], net.hosts[21], net.hosts[22]
+    h21, h22, h23, h24, h25, h26 = net.hosts[9], net.hosts[10], net.hosts[11], net.hosts[12], net.hosts[13], net.hosts[14]
+    h31, h32, h33, h34, h35 = net.hosts[15], net.hosts[16], net.hosts[17], net.hosts[18], net.hosts[19]
+    h41, h42, h43, h44, h45 = net.hosts[20], net.hosts[21], net.hosts[22], net.hosts[23], net.hosts[24]
     
     
     
@@ -267,7 +303,7 @@ def TrdpTopo():
     
     # use mininet to pingall to ensure the network is working
     net.pingAll()
-
+    
 
     # use smcroute to set multicast of h11 in s1 to send to the multicast to bc11
     # h11.cmd('smcroute -d')
@@ -278,7 +314,16 @@ def TrdpTopo():
     # h11.cmd('python /home/lic9/prj/TRDP_SDN/002SDNproject/halosaur/pox/pox/misc/lab/SDN2/client.py -i %s -m %s' % (bc11, 'Hello, this is h11'))
     # h11.cmd('python /home/lic9/prj/TRDP_SDN/002SDNproject/halosaur/pox/pox/misc/lab/SDN2/client.py -i %s -m %s' % (bc11, 'Hello, this is h11'))
     # h11.cmd('python /home/lic9/prj/TRDP_SDN/002SDNproject/halosaur/pox/pox/misc/lab/SDN2/client.py -i %s -m %s' % (bc11, 'Hello, this is h11'))
-    print(s1.cmd('smcroutectl show interfaces'))
+    
+    # restart the smcroute
+    # ensure the smcroute is running and cant detect all the interfaces
+    
+    #print('restart the smcroute')
+    #print(os.system('sudo systemctl restart smcroute'))
+    #time.sleep(3)
+    
+    # show the smcroute interfaces
+    print(s1.cmd('sudo smcroutectl show interfaces'))
 
     # try to enable s1 use smcroute to send the multicast
     # print(s1.cmd( 'sysctl net.ipv4.ip_forward=1'))
@@ -312,68 +357,94 @@ def TrdpTopo():
     # print(h21.cmd( 'sysctl net.ipv4.ip_forward=1'))
     # print(h21.cmd('sysctl net.ipv4.icmp_echo_ignore_broadcasts=0'))
     # print(h21.cmd('route add -net 224.0.0.0 netmask 240.0.0.0 dev ' + intfName))
+    
+    # limit the speed of s3
+    # os.system('sudo tc qdisc add dev s3 root tbf rate 1mbit burst 1600 latency 25ms')
+    
 
     intfNameGroup = [ 'h11-eth1', 'h12-eth1', 'h13-eth1', 'h14-eth1',
                       'h15-eth1', 'h16-eth1', 'h17-eth1', 'h18-eth1',
                       'h19-eth1', 'h21-eth1', 'h22-eth1', 'h23-eth1',
                       'h24-eth1', 'h25-eth1', 'h31-eth1', 'h32-eth1',
                       'h33-eth1', 'h34-eth1', 'h41-eth1', 'h42-eth1',
-                      'h43-eth1', 'h44-eth1', 'h45-eth1']
+                      'h43-eth1', 'h44-eth1', 'h45-eth1', 'h26-eth1',
+                      'h35-eth1']
     nodeNameGroup = [ 'h11', 'h12', 'h13', 'h14', 'h15', 'h16', 'h17', 'h18', 'h19',
                         'h21', 'h22', 'h23', 'h24', 'h25', 'h31', 'h32', 'h33', 'h34',
-                        'h41', 'h42', 'h43', 'h44', 'h45']
+                        'h41', 'h42', 'h43', 'h44', 'h45', 'h26', 'h35']
     
+    
+
+    
+    # enable the ip forward and icmp echo
+    print("enable the ip forward and icmp echo")
     for i in range(len(intfNameGroup)):
         intfName = intfNameGroup[i]
         nodeName = nodeNameGroup[i]
-        print(net.get(nodeName).cmd( 'sysctl net.ipv4.ip_forward=1'))
-        print(net.get(nodeName).cmd('sysctl net.ipv4.icmp_echo_ignore_broadcasts=0'))
-        print(net.get(nodeName).cmd('route add -net 224.0.0.0 netmask 240.0.0.0 dev ' + intfName))
+        print(net.get(nodeName))
+        print(net.get(nodeName).cmd('sudo sysctl net.ipv4.ip_forward=1'))
+        print(net.get(nodeName).cmd('sudo sysctl net.ipv4.icmp_echo_ignore_broadcasts=0'))
+        print(net.get(nodeName).cmd('sudo sysctl net.ipv4.conf.all.accept_redirects=1'))
+        print(net.get(nodeName).cmd('sudo sysctl net.ipv4.conf.all.send_redirects=1'))
+        print(net.get(nodeName).cmd('sudo route add -net 224.0.0.0 netmask 240.0.0.0 dev ' + intfName))
+        #print(net.get(nodeName).cmd('sudo ip addr add 239.255.0.0/16 dev ' + intfName + ' autojoin'))
 
-    udp_msg_list = [{'ComID': 1200, 'MulticastIP': bc11, 'DataLength': 1482,'Period': 30},
-                    {'ComID': 1201, 'MulticastIP': bc12, 'DataLength': 1482,'Period': 30},
-                    {'ComID': 1301, 'MulticastIP': bc13, 'DataLength': 282, 'Period': 30},
-                    {'ComID': 1302, 'MulticastIP': bc14, 'DataLength': 282, 'Period': 30},
-                    {'ComID': 1401, 'MulticastIP': bc15, 'DataLength': 182, 'Period': 30},
-                    {'ComID': 1501, 'MulticastIP': bc16, 'DataLength': 182, 'Period': 100},
-                    {'ComID': 1601, 'MulticastIP': bc17, 'DataLength': 282, 'Period': 200},
-                    {'ComID': 1701, 'MulticastIP': bc18, 'DataLength': 582, 'Period': 50},
-                    {'ComID': 1702, 'MulticastIP': bc19, 'DataLength': 582, 'Period': 50},
-
-                    {'ComID': 2301, 'MulticastIP': bc21, 'DataLength': 282,'Period': 30},
-                    {'ComID': 2302, 'MulticastIP': bc22, 'DataLength': 282,'Period': 30},
-                    {'ComID': 2801, 'MulticastIP': bc23, 'DataLength': 594, 'Period': 30},
-                    {'ComID': 2401, 'MulticastIP': bc24, 'DataLength': 182, 'Period': 30},
-                    {'ComID': 2501, 'MulticastIP': bc25, 'DataLength': 182, 'Period': 100},
-
-                    {'ComID': 3301, 'MulticastIP': bc31, 'DataLength': 282, 'Period': 30},
-                    {'ComID': 3302, 'MulticastIP': bc32, 'DataLength': 282, 'Period': 30},
-                    {'ComID': 3401, 'MulticastIP': bc33, 'DataLength': 182, 'Period': 30},
-                    {'ComID': 3501, 'MulticastIP': bc34, 'DataLength': 182, 'Period': 100},
-
-                    {'ComID': 4301, 'MulticastIP': bc41, 'DataLength': 282, 'Period': 30},
-                    {'ComID': 4302, 'MulticastIP': bc42, 'DataLength': 282, 'Period': 30},
-                    {'ComID': 4801, 'MulticastIP': bc43, 'DataLength': 594, 'Period': 30},
-                    {'ComID': 4401, 'MulticastIP': bc44, 'DataLength': 182, 'Period': 30},
-                    {'ComID': 4501, 'MulticastIP': bc45, 'DataLength': 182, 'Period': 100}]
+    # AtkFlag: 0 for normal, 1 for dos, 2 for dos, 3 for spoofing, 4 for diable the node
+    
+    udp_msg_list = [{'AtkFlag':0, 'ComID': 1200, 'MulticastIP': bc11, 'DataLength': 1482,'Period': 30},
+                    {'AtkFlag':0, 'ComID': 1201, 'MulticastIP': bc12, 'DataLength': 1482,'Period': 30},
+                    {'AtkFlag':0, 'ComID': 1301, 'MulticastIP': bc13, 'DataLength': 282, 'Period': 30},
+                    {'AtkFlag':0, 'ComID': 1302, 'MulticastIP': bc14, 'DataLength': 282, 'Period': 30},
+                    {'AtkFlag':0, 'ComID': 1401, 'MulticastIP': bc15, 'DataLength': 182, 'Period': 30},
+                    {'AtkFlag':0, 'ComID': 1501, 'MulticastIP': bc16, 'DataLength': 182, 'Period': 100},
+                    {'AtkFlag':0, 'ComID': 1601, 'MulticastIP': bc17, 'DataLength': 282, 'Period': 200},
+                    {'AtkFlag':0, 'ComID': 1701, 'MulticastIP': bc18, 'DataLength': 582, 'Period': 50},
+                    {'AtkFlag':0, 'ComID': 1702, 'MulticastIP': bc19, 'DataLength': 582, 'Period': 50},
+                    {'AtkFlag':0, 'ComID': 2301, 'MulticastIP': bc21, 'DataLength': 282,'Period': 30},
+                    {'AtkFlag':0, 'ComID': 2302, 'MulticastIP': bc22, 'DataLength': 282,'Period': 30},
+                    {'AtkFlag':0, 'ComID': 2801, 'MulticastIP': bc23, 'DataLength': 594, 'Period': 30},
+                    {'AtkFlag':0, 'ComID': 2401, 'MulticastIP': bc24, 'DataLength': 182, 'Period': 30},
+                    {'AtkFlag':0, 'ComID': 2501, 'MulticastIP': bc25, 'DataLength': 182, 'Period': 100},
+                    {'AtkFlag':0, 'ComID': 3301, 'MulticastIP': bc31, 'DataLength': 282, 'Period': 30},
+                    {'AtkFlag':0, 'ComID': 3302, 'MulticastIP': bc32, 'DataLength': 282, 'Period': 30},
+                    {'AtkFlag':0, 'ComID': 3401, 'MulticastIP': bc33, 'DataLength': 182, 'Period': 30},     # CAR3 BCU EXCUTE ATK1
+                    {'AtkFlag':0, 'ComID': 3501, 'MulticastIP': bc34, 'DataLength': 182, 'Period': 100},
+                    {'AtkFlag':0, 'ComID': 4301, 'MulticastIP': bc41, 'DataLength': 282, 'Period': 30},
+                    {'AtkFlag':0, 'ComID': 4302, 'MulticastIP': bc42, 'DataLength': 282, 'Period': 30},
+                    {'AtkFlag':0, 'ComID': 4801, 'MulticastIP': bc43, 'DataLength': 594, 'Period': 30},
+                    {'AtkFlag':0, 'ComID': 4401, 'MulticastIP': bc44, 'DataLength': 182, 'Period': 30},
+                    {'AtkFlag':0, 'ComID': 4501, 'MulticastIP': bc45, 'DataLength': 182, 'Period': 100},
+                    
+                    {'AtkFlag':3, 'ComID': 2501, 'MulticastIP': bc25, 'DataLength': 182, 'Period': 100},     # CAR2 SPOOFING ATTACK ATK3
+                    {'AtkFlag':4, 'ComID': 3501, 'MulticastIP': bc34, 'DataLength': 182, 'Period': 100}]     # CAR3 DOS ATTACK ATK2
 
     for i in range(len(udp_msg_list)):
         udp_msg = udp_msg_list[i]
         nodeName = nodeNameGroup[i]
-        print(net.get(nodeName).cmd('python3 client_trdp.py \
-                                    -b %s -p %s -m %s -t %s -l %s -c %s -d %s -a %s &' % \
-                                    (udp_msg['MulticastIP'], \
-                                    6000, \
-                                    'TRDP_Packet_Test', \
-                                    udp_msg['Period'], \
-                                    1, \
-                                    udp_msg['ComID'], \
-                                    udp_msg['DataLength'], \
-                                    0)))
-        # udp_msg['DataLength'], \
+        
+        
+        # print(net.get(nodeName).cmd('python3 client_trdp.py \
+        #                             -b %s -p %s -m %s -t %s -l %s -c %s -d %s -a %s &' % \
+        #                             (udp_msg['MulticastIP'], \
+        #                             6000, \
+        #                             'TRDP_Packet_Test', \
+        #                             udp_msg['Period'], \
+        #                             1, \
+        #                             udp_msg['ComID'], \
+        #                             udp_msg['DataLength'], \
+        #                             0)))
+        
+        print(net.get(nodeName).cmd('python3 client_trdp_atk.py \
+                            -b %s -p %s -m %s -t %s -l %s -c %s -d %s -a %s &' % \
+                            (udp_msg['MulticastIP'], \
+                            6000, \
+                            'TRDP_Packet_Test', \
+                            udp_msg['Period'], \
+                            1, \
+                            udp_msg['ComID'], \
+                            udp_msg['DataLength'], \
+                            udp_msg['AtkFlag'])))
 
-    # onshot test
-    # h11.cmd('python3 client_one_shot.py -i %s -p %s -m %s -t %s &' % (bc11, 6000, 'Hello, this is h11', 30))
     CLI( net )
 
 
