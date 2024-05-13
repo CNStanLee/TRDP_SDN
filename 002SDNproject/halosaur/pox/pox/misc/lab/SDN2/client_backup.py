@@ -11,6 +11,9 @@ print(options.msg)
 print(options.ip)
 print(options.port)
 
+
+
+
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # enable multicast

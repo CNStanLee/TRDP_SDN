@@ -141,6 +141,10 @@ while options.loop == 1:
         # use attack strategy 1
         random_factor_inuse = random_factor_atk1
         delay_with_random = delay_ori + (delay_ori * random_factor_inuse * (random.random() - 0.5))
+    elif atk_flag == 2:
+        # use attack strategy 2
+        # dos attack
+        delay_with_random = 1
     elif atk_flag == 3:
         # use attack strategy 3
         # randomly generate a number from 10 to 100
@@ -176,6 +180,21 @@ while options.loop == 1:
             atk_flag = 0
         elif 170 < running_time <= 200:
             atk_flag = 1
+        else: 
+            atk_flag = 0
+
+    if options.data_tag == 2:
+        # atk2 dos attack
+        if 20 < running_time <= 50:
+            atk_flag = 2
+        elif 50 < running_time <= 100 :
+            atk_flag = 0
+        elif 100 < running_time <= 130:
+            atk_flag = 2
+        elif 130 < running_time <= 170:
+            atk_flag = 0
+        elif 170 < running_time <= 200:
+            atk_flag = 2
         else: 
             atk_flag = 0
     

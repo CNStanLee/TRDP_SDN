@@ -16,12 +16,20 @@ Description:
 # 416208 bytes
 # rate = 416208 - 415792 = 416 bytes / 1 sec = 3328 bits / 1 sec = 2.6 Mbps
 
+# s3 real-time rate
+# 4418032 bytes
+# 4568594 bytes
+# rate = 4568594 - 4418032 = 150562 bytes / 1 sec = 1204496 bits / 1 sec = 9.6 Mbps
+# speed limit 10mbps
+
+
 from mininet.net import Mininet
 from mininet.node import RemoteController
 from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 import time
 import os
+from mininet.link import TCLink
 
 # ip definition
 h11_ip = '10.0.1.10'
@@ -185,45 +193,45 @@ def TrdpTopo():
 	
     info( '*** Creating links\n' )
 	# =>create the links here. You don't need to have a TCLink with bandwidth limitation for this second part
-    net.addLink(h11, s1, port1=1, port2=1, intfName2='s1-h11')
-    net.addLink(h12, s1, port1=1, port2=2, intfName2='s1-h12')
-    net.addLink(h13, s1, port1=1, port2=3, intfName2='s1-h13')
-    net.addLink(h14, s1, port1=1, port2=4, intfName2='s1-h14')
-    net.addLink(h15, s1, port1=1, port2=5)
-    net.addLink(h16, s1, port1=1, port2=6)
-    net.addLink(h17, s1, port1=1, port2=7)
-    net.addLink(h18, s1, port1=1, port2=8)
-    net.addLink(h19, s1, port1=1, port2=9)
+    net.addLink(h11, s1, port1=1, port2=1, intfName2='s1-h11', cls = TCLink, bw = 10) # limit the speed with 10Mbps
+    net.addLink(h12, s1, port1=1, port2=2, intfName2='s1-h12', cls = TCLink, bw = 10)
+    net.addLink(h13, s1, port1=1, port2=3, intfName2='s1-h13', cls = TCLink, bw = 10)
+    net.addLink(h14, s1, port1=1, port2=4, intfName2='s1-h14', cls = TCLink, bw = 10)
+    net.addLink(h15, s1, port1=1, port2=5, cls = TCLink, bw = 10)
+    net.addLink(h16, s1, port1=1, port2=6, cls = TCLink, bw = 10)
+    net.addLink(h17, s1, port1=1, port2=7, cls = TCLink, bw = 10)
+    net.addLink(h18, s1, port1=1, port2=8, cls = TCLink, bw = 10)
+    net.addLink(h19, s1, port1=1, port2=9, cls = TCLink, bw = 10)
     
-    net.addLink(h21, s2, port1=1, port2=1)
-    net.addLink(h22, s2, port1=1, port2=2)
-    net.addLink(h23, s2, port1=1, port2=3)
-    net.addLink(h24, s2, port1=1, port2=4)
-    net.addLink(h25, s2, port1=1, port2=5)
+    net.addLink(h21, s2, port1=1, port2=1, cls = TCLink, bw = 10)
+    net.addLink(h22, s2, port1=1, port2=2, cls = TCLink, bw = 10)
+    net.addLink(h23, s2, port1=1, port2=3, cls = TCLink, bw = 10)
+    net.addLink(h24, s2, port1=1, port2=4, cls = TCLink, bw = 10)
+    net.addLink(h25, s2, port1=1, port2=5, cls = TCLink, bw = 10)
     # car two extra attack node
-    net.addLink(h26, s2, port1=1, port2=6)
+    net.addLink(h26, s2, port1=1, port2=6, cls = TCLink, bw = 10)
     
-    net.addLink(h31, s3, port1=1, port2=1)
-    net.addLink(h32, s3, port1=1, port2=2)
-    net.addLink(h33, s3, port1=1, port2=3)
-    net.addLink(h34, s3, port1=1, port2=4)
+    net.addLink(h31, s3, port1=1, port2=1, cls = TCLink, bw = 10)
+    net.addLink(h32, s3, port1=1, port2=2, cls = TCLink, bw = 10)
+    net.addLink(h33, s3, port1=1, port2=3, cls = TCLink, bw = 10)
+    net.addLink(h34, s3, port1=1, port2=4, cls = TCLink, bw = 10)
     # car three extra attack node
-    net.addLink(h35, s3, port1=1, port2=5)
+    net.addLink(h35, s3, port1=1, port2=5, cls = TCLink, bw = 10)
     
-    net.addLink(h41, s4, port1=1, port2=1)
-    net.addLink(h42, s4, port1=1, port2=2)
-    net.addLink(h43, s4, port1=1, port2=3)
-    net.addLink(h44, s4, port1=1, port2=4)
-    net.addLink(h45, s4, port1=1, port2=5)
+    net.addLink(h41, s4, port1=1, port2=1, cls = TCLink, bw = 10)
+    net.addLink(h42, s4, port1=1, port2=2, cls = TCLink, bw = 10)
+    net.addLink(h43, s4, port1=1, port2=3, cls = TCLink, bw = 10)
+    net.addLink(h44, s4, port1=1, port2=4, cls = TCLink, bw = 10)
+    net.addLink(h45, s4, port1=1, port2=5, cls = TCLink, bw = 10)
     
-    net.addLink(s1, s2, port1=12, port2=11)
-    net.addLink(s1, s3, port1=13, port2=11)
-    net.addLink(s1, s4, port1=14, port2=11)
+    net.addLink(s1, s2, port1=12, port2=11, cls = TCLink, bw = 10)
+    net.addLink(s1, s3, port1=13, port2=11, cls = TCLink, bw = 10)
+    net.addLink(s1, s4, port1=14, port2=11, cls = TCLink, bw = 10)
     
-    net.addLink(s2, s3, port1=13, port2=12)
-    net.addLink(s2, s4, port1=14, port2=12)
+    net.addLink(s2, s3, port1=13, port2=12, cls = TCLink, bw = 10)
+    net.addLink(s2, s4, port1=14, port2=12, cls = TCLink, bw = 10)
     
-    net.addLink(s3, s4, port1=14, port2=13)
+    net.addLink(s3, s4, port1=14, port2=13, cls = TCLink, bw = 10)
     
     
     # add the links between the switches
@@ -415,8 +423,8 @@ def TrdpTopo():
                     {'AtkFlag':0, 'ComID': 4401, 'MulticastIP': bc44, 'DataLength': 182, 'Period': 30},
                     {'AtkFlag':0, 'ComID': 4501, 'MulticastIP': bc45, 'DataLength': 182, 'Period': 100},
                     
-                    {'AtkFlag':3, 'ComID': 2501, 'MulticastIP': bc25, 'DataLength': 182, 'Period': 100},     # CAR2 SPOOFING ATTACK ATK3
-                    {'AtkFlag':4, 'ComID': 3501, 'MulticastIP': bc34, 'DataLength': 182, 'Period': 100}]     # CAR3 DOS ATTACK ATK2
+                    {'AtkFlag':4, 'ComID': 2501, 'MulticastIP': bc25, 'DataLength': 182, 'Period': 100},     # CAR2 SPOOFING ATTACK ATK3
+                    {'AtkFlag':2, 'ComID': 3501, 'MulticastIP': bc34, 'DataLength': 1482, 'Period': 100}]     # CAR3 DOS ATTACK ATK2
 
     for i in range(len(udp_msg_list)):
         udp_msg = udp_msg_list[i]
