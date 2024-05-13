@@ -15,7 +15,12 @@ close all;
 % attack ip 10.0.2.160
 % data type: not struct
 
-pcapFile = 'sim8.pcap';
+% sim9 is the data that use strategy 3
+% attack ip 10.0.3.160
+% under atk ip 10.0.3.40
+% data type: not struct
+
+pcapFile = 'sim9_under_atk.pcap';
 pcapReaderObj  = pcapReader(pcapFile);
 decodedPackets = readAll(pcapReaderObj);
 length_of_pack = length(decodedPackets);
@@ -31,8 +36,8 @@ if isstruct(decodedPackets(1).Packet)
         if decodedPackets(i).Packet.eth.Payload(10) == 17 ...
                 && decodedPackets(i).Packet.eth.Payload(13) == 10 ...
                 && decodedPackets(i).Packet.eth.Payload(14) == 0 ...
-                && decodedPackets(i).Packet.eth.Payload(15) == 1 ...
-                && decodedPackets(i).Packet.eth.Payload(16) == 30 
+                && decodedPackets(i).Packet.eth.Payload(15) == 3 ...
+                && decodedPackets(i).Packet.eth.Payload(16) == 40 
             time_stamp_series = [time_stamp_series, timestamp_value];
         end
     end
@@ -42,8 +47,8 @@ else
         if decodedPackets(i).Packet(26) == 17 ...
                 && decodedPackets(i).Packet(29) == 10 ...
                 && decodedPackets(i).Packet(30) == 0 ...
-                && decodedPackets(i).Packet(31) == 2 ...
-                && decodedPackets(i).Packet(32) == 160 
+                && decodedPackets(i).Packet(31) == 3 ...
+                && decodedPackets(i).Packet(32) == 40 
             time_stamp_series = [time_stamp_series, timestamp_value];
         end
     end
