@@ -27,7 +27,6 @@ length_of_pack = length(decodedPackets);
 
 % get the timestamp features from the packet
 time_stamp_series = [];
-
 % check the structure fo the data packet
 if isstruct(decodedPackets(1).Packet)
 % is struct
