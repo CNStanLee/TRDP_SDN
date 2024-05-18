@@ -415,7 +415,7 @@ def TrdpTopo():
                     {'AtkFlag':0, 'ComID': 2501, 'MulticastIP': bc25, 'DataLength': 182, 'Period': 100},
                     {'AtkFlag':0, 'ComID': 3301, 'MulticastIP': bc31, 'DataLength': 282, 'Period': 30},
                     {'AtkFlag':0, 'ComID': 3302, 'MulticastIP': bc32, 'DataLength': 282, 'Period': 30},
-                    {'AtkFlag':0, 'ComID': 3401, 'MulticastIP': bc33, 'DataLength': 182, 'Period': 30},     # CAR3 BCU EXCUTE ATK1
+                    {'AtkFlag':1, 'ComID': 3401, 'MulticastIP': bc33, 'DataLength': 182, 'Period': 30},     # CAR3 BCU EXCUTE ATK1
                     {'AtkFlag':0, 'ComID': 3501, 'MulticastIP': bc34, 'DataLength': 182, 'Period': 100},
                     {'AtkFlag':0, 'ComID': 4301, 'MulticastIP': bc41, 'DataLength': 282, 'Period': 30},
                     {'AtkFlag':0, 'ComID': 4302, 'MulticastIP': bc42, 'DataLength': 282, 'Period': 30},
@@ -423,7 +423,7 @@ def TrdpTopo():
                     {'AtkFlag':0, 'ComID': 4401, 'MulticastIP': bc44, 'DataLength': 182, 'Period': 30},
                     {'AtkFlag':0, 'ComID': 4501, 'MulticastIP': bc45, 'DataLength': 182, 'Period': 100},
                     
-                    {'AtkFlag':4, 'ComID': 2501, 'MulticastIP': bc25, 'DataLength': 182, 'Period': 100},     # CAR2 SPOOFING ATTACK ATK3
+                    {'AtkFlag':3, 'ComID': 2501, 'MulticastIP': bc25, 'DataLength': 182, 'Period': 100},     # CAR2 SPOOFING ATTACK ATK3
                     {'AtkFlag':2, 'ComID': 3501, 'MulticastIP': bc34, 'DataLength': 1482, 'Period': 100}]     # CAR3 DOS ATTACK ATK2
 
     for i in range(len(udp_msg_list)):

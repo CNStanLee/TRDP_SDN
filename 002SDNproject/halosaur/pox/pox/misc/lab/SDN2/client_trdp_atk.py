@@ -114,7 +114,8 @@ s.sendto(msg, (options.ip, options.port) )
 
 # random factor for the delay time, 10% of the delay time
 random_factor_normal = 0.01
-random_factor_atk1 = 0.2
+# random_factor_atk1 = 0.2
+random_factor_atk1 = 0.6
 
 # the random factor that in use
 # initialize the random factor as a normal offset
@@ -148,7 +149,8 @@ while options.loop == 1:
     elif atk_flag == 3:
         # use attack strategy 3
         # randomly generate a number from 10 to 100
-        delay_with_random = random.randint(10, 100)
+        # delay_with_random = random.randint(10, 100)
+        delay_with_random = random.randint(10, 300)
     
     # wait for the time interval
     time.sleep(delay_with_random/delay_ms)
@@ -175,18 +177,18 @@ while options.loop == 1:
         elif 50 < running_time <= 100 :
             atk_flag = 0
         elif 100 < running_time <= 130:
-            atk_flag = 1
+            atk_flag = 0
         elif 130 < running_time <= 170:
             atk_flag = 0
         elif 170 < running_time <= 200:
-            atk_flag = 1
+            atk_flag = 0
         else: 
             atk_flag = 0
 
     if options.data_tag == 2:
         # atk2 dos attack
         if 20 < running_time <= 50:
-            atk_flag = 2
+            atk_flag = 0
         elif 50 < running_time <= 100 :
             atk_flag = 0
         elif 100 < running_time <= 130:
@@ -194,18 +196,18 @@ while options.loop == 1:
         elif 130 < running_time <= 170:
             atk_flag = 0
         elif 170 < running_time <= 200:
-            atk_flag = 2
+            atk_flag = 0
         else: 
             atk_flag = 0
     
     if options.data_tag == 3:
         # atk3
         if 20 < running_time <= 50:
-            atk_flag = 3
+            atk_flag = 0
         elif 50 < running_time <= 100 :
             atk_flag = 0
         elif 100 < running_time <= 130:
-            atk_flag = 3
+            atk_flag = 0
         elif 130 < running_time <= 170:
             atk_flag = 0
         elif 170 < running_time <= 200:
