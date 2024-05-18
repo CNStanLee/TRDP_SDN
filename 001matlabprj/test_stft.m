@@ -11,7 +11,7 @@ close all;
 % attack ip 10.0.3.120
 % data type: not struct
 
-% sim8 is the data that use strategy 3
+% sim8 is the data that use strategy 2
 % attack ip 10.0.2.160
 % data type: not struct
 

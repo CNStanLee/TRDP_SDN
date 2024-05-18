@@ -1,17 +1,57 @@
+% get the data from the wireshark
+% sim2 is a normal data
+
+% sim7 is the data that use strategy 1
+% attack ip 10.0.3.120
+% data type: not struct
+
+% sim8 is the data that use strategy 3
+% attack ip 10.0.2.160
+% data type: not struct
+
+% sim9 is the data that use strategy 3
+% attack ip 10.0.3.160
+% under atk ip 10.0.3.40
+% data type: not struct
+
+%% sim 2 normal data
 clear ;
 close(gcf);
 close(gcf);
-
-%% 获取wireshark数据
-pcapFile = 'x15.pcap';
+clc;
+pcapFile = 'sim2.pcap';
 pcapReaderObj  = pcapReader(pcapFile); % 使用pcapfile库读取数据
 decodedPackets = readAll(pcapReaderObj);
 
 
 
 IP = struct('ip_str','ip_dst','Data','Timestamp');
-IP(1).ip_str = '10.0.4.10';
-IP(1).ip_dst = '239.255.2.0';
+IP(1).ip_str = '10.0.4.100';
+IP(1).ip_dst = '239.255.17.1';
+
+[IP(1).Data, IP(1).Timestamp] = pcapDataRead2(decodedPackets,IP(1).ip_str,IP(1).ip_dst);
+x1 = 1.*diff(IP(1).Timestamp);
+min_x = min(x1);
+max_x = max(x1);
+
+% x1 = flowcalculation(decodedPackets);   % 计算流量
+normal_data = x1;
+save('sim2_normal_data.mat', 'normal_data');
+
+%% sim 7 s1
+clear ;
+close(gcf);
+close(gcf);
+clc;
+pcapFile = 'sim7.pcap';
+pcapReaderObj  = pcapReader(pcapFile); % 使用pcapfile库读取数据
+decodedPackets = readAll(pcapReaderObj);
+
+
+
+IP = struct('ip_str','ip_dst','Data','Timestamp');
+IP(1).ip_str = '10.0.3.120';
+IP(1).ip_dst = '239.255.13.1';
 
 [IP(1).Data, IP(1).Timestamp] = pcapDataRead(decodedPackets,IP(1).ip_str,IP(1).ip_dst);
 x1 = 1.*diff(IP(1).Timestamp);
@@ -20,6 +60,78 @@ max_x = max(x1);
 
 % x1 = flowcalculation(decodedPackets);   % 计算流量
 normal_data = x1;
+save('sim7_s1', 'normal_data');
+%% sim 8 s2
+clear ;
+close(gcf);
+close(gcf);
+clc;
+pcapFile = 'sim8.pcap';
+pcapReaderObj  = pcapReader(pcapFile); % 使用pcapfile库读取数据
+decodedPackets = readAll(pcapReaderObj);
+
+
+
+IP = struct('ip_str','ip_dst','Data','Timestamp');
+IP(1).ip_str = '10.0.2.160';
+IP(1).ip_dst = '239.255.11.1';
+
+[IP(1).Data, IP(1).Timestamp] = pcapDataRead(decodedPackets,IP(1).ip_str,IP(1).ip_dst);
+x1 = 1.*diff(IP(1).Timestamp);
+min_x = min(x1);
+max_x = max(x1);
+
+% x1 = flowcalculation(decodedPackets);   % 计算流量
+normal_data = x1;
+save('sim8_s2', 'normal_data');
+
+%% sim 9 s3 atk
+clear ;
+close(gcf);
+close(gcf);
+clc;
+pcapFile = 'sim9_dos_atk.pcap';
+pcapReaderObj  = pcapReader(pcapFile); % 使用pcapfile库读取数据
+decodedPackets = readAll(pcapReaderObj);
+
+
+
+IP = struct('ip_str','ip_dst','Data','Timestamp');
+IP(1).ip_str = '10.0.3.160';
+IP(1).ip_dst = '239.255.14.1';
+
+[IP(1).Data, IP(1).Timestamp] = pcapDataRead2(decodedPackets,IP(1).ip_str,IP(1).ip_dst);
+x1 = 1.*diff(IP(1).Timestamp);
+min_x = min(x1);
+max_x = max(x1);
+
+% x1 = flowcalculation(decodedPackets);   % 计算流量
+normal_data = x1;
+save('sim9_dos_atk', 'normal_data');
+
+%% sim 9 under atk
+clear ;
+close(gcf);
+close(gcf);
+clc;
+pcapFile = 'sim9_under_atk.pcap';
+pcapReaderObj  = pcapReader(pcapFile); % 使用pcapfile库读取数据
+decodedPackets = readAll(pcapReaderObj);
+
+
+
+IP = struct('ip_str','ip_dst','Data','Timestamp');
+IP(1).ip_str = '10.0.3.40';
+IP(1).ip_dst = '239.255.12.1';
+
+[IP(1).Data, IP(1).Timestamp] = pcapDataRead2(decodedPackets,IP(1).ip_str,IP(1).ip_dst);
+x1 = 1.*diff(IP(1).Timestamp);
+min_x = min(x1);
+max_x = max(x1);
+
+% x1 = flowcalculation(decodedPackets);   % 计算流量
+normal_data = x1;
+save('sim9_under_atk', 'normal_data');
 
 %% 干扰数据 
 
