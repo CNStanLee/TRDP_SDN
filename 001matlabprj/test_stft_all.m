@@ -24,7 +24,7 @@ close all;
 % sim10 is the data that use strategy 1,2,3
 % sim10 is the data that use strategy 1,2,3 ,high performance attack
 
-pcapFile = 'sim11.pcap';
+pcapFile = 'sim12.pcap';
 pcapReaderObj  = pcapReader(pcapFile);
 decodedPackets = readAll(pcapReaderObj);
 length_of_pack = length(decodedPackets);
