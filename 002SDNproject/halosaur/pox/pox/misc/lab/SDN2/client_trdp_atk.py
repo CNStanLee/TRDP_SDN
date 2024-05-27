@@ -145,7 +145,7 @@ while options.loop == 1:
     elif atk_flag == 2:
         # use attack strategy 2
         # dos attack
-        delay_with_random = 1
+        delay_with_random = 5
     elif atk_flag == 3:
         # use attack strategy 3
         # randomly generate a number from 10 to 100
