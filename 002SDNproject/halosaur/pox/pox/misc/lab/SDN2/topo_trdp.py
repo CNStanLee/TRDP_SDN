@@ -7,20 +7,6 @@ FilePath: /TRDP_SDN/002SDNproject/halosaur/pox/pox/misc/lab/SDN2/topo_trdp.py
 Description: 
 
 '''
-# wireshark filter setting
-# udp.port == 6000 && ! openflow_v1 && ip.addr == 10.0.2.160
-
-
-# s3 real-time rate
-# 415792 bytes
-# 416208 bytes
-# rate = 416208 - 415792 = 416 bytes / 1 sec = 3328 bits / 1 sec = 2.6 Mbps
-
-# s3 real-time rate
-# 4418032 bytes
-# 4568594 bytes
-# rate = 4568594 - 4418032 = 150562 bytes / 1 sec = 1204496 bits / 1 sec = 9.6 Mbps
-# speed limit 10mbps
 
 
 from mininet.net import Mininet
@@ -430,17 +416,6 @@ def TrdpTopo():
         udp_msg = udp_msg_list[i]
         nodeName = nodeNameGroup[i]
         
-        
-        # print(net.get(nodeName).cmd('python3 client_trdp.py \
-        #                             -b %s -p %s -m %s -t %s -l %s -c %s -d %s -a %s &' % \
-        #                             (udp_msg['MulticastIP'], \
-        #                             6000, \
-        #                             'TRDP_Packet_Test', \
-        #                             udp_msg['Period'], \
-        #                             1, \
-        #                             udp_msg['ComID'], \
-        #                             udp_msg['DataLength'], \
-        #                             0)))
         
         print(net.get(nodeName).cmd('python3 client_trdp_atk.py \
                             -b %s -p %s -m %s -t %s -l %s -c %s -d %s -a %s &' % \

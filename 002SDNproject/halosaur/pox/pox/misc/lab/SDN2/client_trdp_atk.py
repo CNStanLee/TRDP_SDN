@@ -145,74 +145,109 @@ while options.loop == 1:
     elif atk_flag == 2:
         # use attack strategy 2
         # dos attack
-        delay_with_random = 5
+        # delay_with_random = 5
+        delay_with_random = 3
     elif atk_flag == 3:
         # use attack strategy 3
         # randomly generate a number from 10 to 100
         # delay_with_random = random.randint(10, 100)
-        delay_with_random = random.randint(10, 300)
-    
+        # delay_with_random = random.randint(10, 300)
+        # delay_with_random = random.randint(1, 300)
+        delay_with_random = random.randint(28, 71)
+
     # wait for the time interval
     time.sleep(delay_with_random/delay_ms)
     # update sequence counter
     seq_counter_ori = seq_counter_ori + 1
     seq_counter = struct.pack(fmt_uint32, seq_counter_ori) 
     # construct the message
+    # msg = seq_counter + protocol_version_msg_type + \
+    #   com_id + etb_topo_count + op_trn_topo_count + \
+    #   dataset_length + reserved + \
+    #   reply_com_id + reply_ip + \
+    #   header_fcs + data_tag + data_content
+    atk_flag_f = struct.pack(fmt_uint32, atk_flag)
+
     msg = seq_counter + protocol_version_msg_type + \
       com_id + etb_topo_count + op_trn_topo_count + \
       dataset_length + reserved + \
       reply_com_id + reply_ip + \
-      header_fcs + data_tag + data_content
+      header_fcs + atk_flag_f + data_content
+    # mark as atk message only when the attack is ex
     # send the message
     s.sendto(msg, (options.ip, options.port))
     # check the time
     current_time = time.time()
     # if the time is more than 10 seconds, then change the random factor
+    #running_time = current_time - start_time
+    
+    # every 5 seconds, change the attack strategy
+
+    # if options.data_tag == 1:
+    #     # atk1
+    #     if 20 < running_time <= 50:
+    #         atk_flag = 1
+    #     elif 50 < running_time <= 100 :
+    #         atk_flag = 0
+    #     elif 100 < running_time <= 130:
+    #         atk_flag = 0
+    #     elif 130 < running_time <= 170:
+    #         atk_flag = 0
+    #     elif 170 < running_time <= 200:
+    #         atk_flag = 0
+    #     else: 
+    #         atk_flag = 0
+
+    # if options.data_tag == 2:
+    #     # atk2 dos attack
+    #     if 20 < running_time <= 50:
+    #         atk_flag = 0
+    #     elif 50 < running_time <= 100 :
+    #         atk_flag = 0
+    #     elif 100 < running_time <= 130:
+    #         atk_flag = 2
+    #     elif 130 < running_time <= 170:
+    #         atk_flag = 0
+    #     elif 170 < running_time <= 200:
+    #         atk_flag = 0
+    #     else: 
+    #         atk_flag = 0
+    
+    # if options.data_tag == 3:
+    #     # atk3
+    #     if 20 < running_time <= 50:
+    #         atk_flag = 0
+    #     elif 50 < running_time <= 100 :
+    #         atk_flag = 0
+    #     elif 100 < running_time <= 130:
+    #         atk_flag = 0
+    #     elif 130 < running_time <= 170:
+    #         atk_flag = 0
+    #     elif 170 < running_time <= 200:
+    #         atk_flag = 3
+    #     else: 
+    #         atk_flag = 0
+    
+    # construct atk period
     running_time = current_time - start_time
+    if running_time > 30:
+        start_time = current_time
+        running_time = 0
     
-    if options.data_tag == 1:
-        # atk1
-        if 20 < running_time <= 50:
+    if 0 < running_time <= 5:
+        atk_flag = 0
+    elif 5 < running_time <= 10:
+        if options.data_tag == 1:
             atk_flag = 1
-        elif 50 < running_time <= 100 :
-            atk_flag = 0
-        elif 100 < running_time <= 130:
-            atk_flag = 0
-        elif 130 < running_time <= 170:
-            atk_flag = 0
-        elif 170 < running_time <= 200:
-            atk_flag = 0
-        else: 
-            atk_flag = 0
-
-    if options.data_tag == 2:
-        # atk2 dos attack
-        if 20 < running_time <= 50:
-            atk_flag = 0
-        elif 50 < running_time <= 100 :
-            atk_flag = 0
-        elif 100 < running_time <= 130:
+    elif 10 < running_time <= 15:
+        atk_flag = 0
+    elif 15 < running_time <= 20:
+        if options.data_tag == 2:
             atk_flag = 2
-        elif 130 < running_time <= 170:
-            atk_flag = 0
-        elif 170 < running_time <= 200:
-            atk_flag = 0
-        else: 
-            atk_flag = 0
-    
-    if options.data_tag == 3:
-        # atk3
-        if 20 < running_time <= 50:
-            atk_flag = 0
-        elif 50 < running_time <= 100 :
-            atk_flag = 0
-        elif 100 < running_time <= 130:
-            atk_flag = 0
-        elif 130 < running_time <= 170:
-            atk_flag = 0
-        elif 170 < running_time <= 200:
+    elif 20 < running_time <= 25:
+        atk_flag = 0
+    elif 25 < running_time <= 30:
+        if options.data_tag == 3:
             atk_flag = 3
-        else: 
-            atk_flag = 0
-    
-
+    else:
+        atk_flag = 0
