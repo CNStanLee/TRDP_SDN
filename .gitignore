@@ -1,0 +1,5 @@
+# Ignore all .pcapng files
+*.pcapng
+
+# Ignore all .png files
+*.png
