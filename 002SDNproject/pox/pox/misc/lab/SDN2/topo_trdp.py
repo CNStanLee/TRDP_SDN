@@ -13,6 +13,7 @@ from mininet.cli import CLI
 from mininet.log import setLogLevel, info
 import time
 import os
+import sys
 
 # ip definition
 h11_ip = '10.0.1.10'
@@ -48,27 +49,27 @@ h12_mac = '00:00:00:00:01:11'
 h13_mac = '00:00:00:00:01:40'
 h14_mac = '00:00:00:00:01:41'
 h15_mac = '00:00:00:00:01:20'
-h16_mac = '00:00:00:00:01:140'
-h17_mac = '00:00:00:00:01:210'
+h16_mac = '00:00:00:00:01:8c'
+h17_mac = '00:00:00:00:01:d2'
 h18_mac = '00:00:00:00:01:30'
 h19_mac = '00:00:00:00:01:31'
 
 h21_mac = '00:00:00:00:02:40'
 h22_mac = '00:00:00:00:02:41'
-h23_mac = '00:00:00:00:02:100'
-h24_mac = '00:00:00:00:02:120'
-h25_mac = '00:00:00:00:02:140'
+h23_mac = '00:00:00:00:02:64'
+h24_mac = '00:00:00:00:02:78'
+h25_mac = '00:00:00:00:02:8c'
 
 h31_mac = '00:00:00:00:03:40'
 h32_mac = '00:00:00:00:03:41'
-h33_mac = '00:00:00:00:03:120'
-h34_mac = '00:00:00:00:03:140'
+h33_mac = '00:00:00:00:03:78'
+h34_mac = '00:00:00:00:03:8c'
 
 h41_mac = '00:00:00:00:04:40'
 h42_mac = '00:00:00:00:04:41'
-h43_mac = '00:00:00:00:04:100'
-h44_mac = '00:00:00:00:04:120'
-h45_mac = '00:00:00:00:04:140'
+h43_mac = '00:00:00:00:04:64'
+h44_mac = '00:00:00:00:04:78'
+h45_mac = '00:00:00:00:04:8c'
 
 # broadcast ip
 bc11 = '239.255.2.0'
@@ -101,13 +102,13 @@ bc45 = '239.255.19.1'
 
 
 
-def TrdpTopo():
+def TrdpTopo(verify_policies=False, verify_wait=6):
     net = Mininet( controller=RemoteController)
 
 	# For this part you can reuse the exact same code of the first assignment. Notice that for the links you don't need to have a TCLink with bandwidth limitation for this second part
     info( '*** Adding controller\n' )
 	# =>add the controller here
-    net.addController('c0')
+    net.addController('c0', ip='127.0.0.1', port=6633)
 	
     info( '*** Adding hosts\n' )
     # =>add the hosts here  
@@ -252,17 +253,29 @@ def TrdpTopo():
     # os.system('sudo mnexec -a %s python /home/lic9/prj/TRDP_SDN/002SDNproject/pox/pox/misc/lab/SDN/app.py %s %s &' % (h43.name, bc43, 30))
     # os.system('sudo mnexec -a %s python /home/lic9/prj/TRDP_SDN/002SDNproject/pox/pox/misc/lab/SDN/app.py %s %s &' % (h44.name, bc44, 30))
     # os.system('sudo mnexec -a %s python /home/lic9/prj/TRDP_SDN/002SDNproject/pox/pox/misc/lab/SDN/app.py %s %s &' % (h45.name, bc45, 100))
-    
-    
-    CLI( net )
-    # os.system('sudo ovs-vsctl clear Port s1-eth3 qos')
-    # os.system('sudo ovs-vsctl clear Port s1-eth4 qos')
+    try:
+        if verify_policies:
+            info('*** Waiting %s seconds for controller policy deployment\n' % verify_wait)
+            time.sleep(verify_wait)
+            info('*** Dumping OpenFlow tables; d1-d5 use cookies 0xd100001..0xd500001\n')
+            for switch_name in ['s1', 's2', 's3', 's4']:
+                info('\n*** %s flow table\n' % switch_name)
+                os.system('sudo ovs-ofctl -O OpenFlow10 dump-flows %s' % switch_name)
+        else:
+            CLI( net )
+    finally:
+        # os.system('sudo ovs-vsctl clear Port s1-eth3 qos')
+        # os.system('sudo ovs-vsctl clear Port s1-eth4 qos')
 
-    os.system('sudo ovs-vsctl --all destroy qos')
-    os.system('sudo ovs-vsctl --all destroy queue')
-    net.stop()
+        os.system('sudo ovs-vsctl --all destroy qos')
+        os.system('sudo ovs-vsctl --all destroy queue')
+        net.stop()
 
 if __name__ == '__main__':
     setLogLevel( 'info' )
-    TrdpTopo()
-
+    verify_policies = '--verify-policies' in sys.argv
+    verify_wait = 6
+    for arg in sys.argv:
+        if arg.startswith('--verify-wait='):
+            verify_wait = float(arg.split('=', 1)[1])
+    TrdpTopo(verify_policies=verify_policies, verify_wait=verify_wait)
